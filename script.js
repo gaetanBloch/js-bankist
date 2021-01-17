@@ -1,37 +1,41 @@
 'use strict';
 
-/////////////////////////////////////////////////
-/////////////////////////////////////////////////
-// BANKIST APP
+class Account {
+  constructor(owner, movements, interestRate, pin) {
+    this.owner = owner;
+    this.movements = movements;
+    this.interestRate = interestRate; // %
+    this.pin = pin;
+  }
+}
 
-// Data
-const account1 = {
-  owner: 'Gaetan Bloch',
-  movements: [200, 450, -400, 3000, -650, -130, 70, 1300],
-  interestRate: 1.2, // %
-  pin: 1111,
-};
+const account1 = new Account(
+  'Gaetan Bloch',
+  [200, 450, -400, 3000, -650, -130, 70, 1300],
+  1.2,
+  1111,
+);
 
-const account2 = {
-  owner: 'Jessica Davis',
-  movements: [5000, 3400, -150, -790, -3210, -1000, 8500, -30],
-  interestRate: 1.5,
-  pin: 2222,
-};
+const account2 = new Account(
+  'Jessica Davis',
+  [5000, 3400, -150, -790, -3210, -1000, 8500, -30],
+  1.5,
+  2222,
+);
 
-const account3 = {
-  owner: 'Steven Thomas Williams',
-  movements: [200, -200, 340, -300, -20, 50, 400, -460],
-  interestRate: 0.7,
-  pin: 3333,
-};
+const account3 = new Account(
+  'Gaetan Bloch',
+  [200, 450, -400, 3000, -650, -130, 70, 1300],
+  0.7,
+  3333,
+);
 
-const account4 = {
-  owner: 'Sarah Smith',
-  movements: [430, 1000, 700, 50, 90],
-  interestRate: 1,
-  pin: 4444,
-};
+const account4 = new Account(
+  'Gaetan Bloch',
+  [430, 1000, 700, 50, 90],
+  1,
+  4444,
+);
 
 const accounts = [account1, account2, account3, account4];
 
@@ -60,17 +64,3 @@ const inputTransferAmount = document.querySelector('.form__input--amount');
 const inputLoanAmount = document.querySelector('.form__input--loan-amount');
 const inputCloseUsername = document.querySelector('.form__input--user');
 const inputClosePin = document.querySelector('.form__input--pin');
-
-/////////////////////////////////////////////////
-/////////////////////////////////////////////////
-// LECTURES
-
-const currencies = new Map([
-  ['USD', 'United States dollar'],
-  ['EUR', 'Euro'],
-  ['GBP', 'Pound sterling'],
-]);
-
-const movements = [200, 450, -400, 3000, -650, -130, 70, 1300];
-
-/////////////////////////////////////////////////

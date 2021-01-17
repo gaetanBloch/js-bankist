@@ -98,3 +98,8 @@ const createUserNames = accounts =>
   accounts.forEach(account => account.userName = createUserName(account.owner));
 
 createUserNames(accounts);
+
+const displayBalance = movements =>
+  labelBalance.textContent = movements.reduce((acc, cur) => acc + cur) + ' €';
+
+displayBalance(account1.movements);

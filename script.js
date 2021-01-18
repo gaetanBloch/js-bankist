@@ -2,6 +2,7 @@
 
 class Account {
   userName;
+  balance;
 
   constructor(owner, movements, interestRate, pin) {
     this.owner = owner;
@@ -40,6 +41,8 @@ const account4 = new Account(
 );
 
 const accounts = [account1, account2, account3, account4];
+
+let currentAccount;
 
 // Elements
 const app = document.querySelector('.app');
@@ -90,8 +93,10 @@ const displayMovements = (movements) => {
 };
 
 // Balance
-const displayBalance = movements =>
-  labelBalance.textContent = movements.reduce((acc, cur) => acc + cur) + ' €';
+const displayBalance = account => {
+  account.balance = account.movements.reduce((acc, cur) => acc + cur);
+  labelBalance.textContent = account.balance + ' €';
+};
 
 // Summary
 
@@ -139,20 +144,12 @@ const createUserNames = accounts =>
   accounts.forEach(account => account.userName = createUserName(account.owner));
 
 //// Credentials
+const getCredentials = () =>
+  accounts.find(account =>
+    account.userName === inputLoginUsername.value &&
+    account.pin === Number(inputLoginPin.value));
 
-const getCredentials = () => {
-  const account = accounts.find(account => {
-      console.log(account.userName, inputLoginUsername.value);
-      return account.userName === inputLoginUsername.value;
-    },
-  );
-  console.log(account);
-  return account && account.pin === Number(inputLoginPin.value)
-    ? account
-    : undefined;
-};
-
-const login = (event) => {
+const login = event => {
   // Prevent the page to be reloaded on form submit
   event.preventDefault();
 
@@ -163,21 +160,82 @@ const login = (event) => {
   }
 
   console.log(account);
+  currentAccount = account;
 
   app.style.opacity = '1';
   labelWelcome.textContent = 'Good Day, ' + account.owner.split(' ')[0];
   inputLoginUsername.value = inputLoginPin.value = '';
+  inputLoginUsername.blur();
   inputLoginPin.blur();
 
   displayMovements(account.movements);
-  displayBalance(account.movements);
+  displayBalance(account);
   displaySummary(account);
 };
+
+// Transfers
+
+const checkTransfer = (transferAccount, amount) => {
+  if (!transferAccount) {
+    alert('Transfer account does not exist');
+    return false;
+  }
+  if (amount <= 0) {
+    alert('Transfer amount must be superior to 0');
+    return false;
+  }
+  if (amount > currentAccount.balance) {
+    alert('You don\'t have enough in your account to make the transfer');
+    return false;
+  }
+  if (transferAccount.userName === currentAccount.userName &&
+    transferAccount.pin === currentAccount.pin) {
+    alert('You cannot transfer money to your own account');
+    return false;
+  }
+  return true;
+};
+
+const transfer = event => {
+  // Prevent the page to be reloaded on form submit
+  event.preventDefault();
+
+  const amount = Number(inputTransferAmount.value);
+  const transferAccount = accounts.find(account =>
+    account.userName === inputTransferTo.value);
+
+  if (!checkTransfer(transferAccount, amount)) {
+    return;
+  }
+
+  currentAccount.movements.push(-amount);
+  transferAccount.movements.push(amount);
+  displayMovements(currentAccount.movements);
+  displayBalance(currentAccount);
+  displayOut(currentAccount);
+
+  inputTransferTo.value = inputTransferAmount.value = '';
+  inputTransferTo.blur();
+  inputTransferAmount.blur();
+};
+
+// // Close Account
+//
+// const close = event => {
+//   // Prevent the page to be reloaded on form submit
+//   event.preventDefault();
+//
+//   const account = accounts.find(account =>
+//     account.userName === inputCloseUsername.value);
+//
+// };
 
 // Initialize
 const init = () => {
   createUserNames(accounts);
   btnLogin.addEventListener('click', login);
+  btnTransfer.addEventListener('click', transfer);
+  // btnClose.addEventListener('click', close);
 };
 
 init();

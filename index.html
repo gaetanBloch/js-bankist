@@ -80,7 +80,7 @@
     <h2>Transfer money</h2>
     <form class="form form--transfer">
       <input class="form__input form__input--to" type="text"/>
-      <input class="form__input form__input--amount" type="number"/>
+      <input class="form__input form__input--amount" min="0" type="number"/>
       <button class="form__btn form__btn--transfer">&rarr;</button>
       <label class="form__label">Transfer to</label>
       <label class="form__label">Amount</label>
@@ -91,7 +91,9 @@
   <div class="operation operation--loan">
     <h2>Request loan</h2>
     <form class="form form--loan">
-      <input class="form__input form__input--loan-amount" type="number"/>
+      <input class="form__input form__input--loan-amount"
+             min="0"
+             type="number"/>
       <button class="form__btn form__btn--loan">&rarr;</button>
       <label class="form__label form__label--loan">Amount</label>
     </form>

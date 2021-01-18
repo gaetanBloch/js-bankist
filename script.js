@@ -219,23 +219,40 @@ const transfer = event => {
   inputTransferAmount.blur();
 };
 
-// // Close Account
-//
-// const close = event => {
-//   // Prevent the page to be reloaded on form submit
-//   event.preventDefault();
-//
-//   const account = accounts.find(account =>
-//     account.userName === inputCloseUsername.value);
-//
-// };
+// Close Account
+
+const close = event => {
+  // Prevent the page to be reloaded on form submit
+  event.preventDefault();
+
+  const index = accounts.findIndex(account =>
+    account.userName === inputCloseUsername.value &&
+    account.pin === Number(inputClosePin.value));
+
+  if (index === -1) {
+    alert('Could not find account to close');
+    return;
+  }
+
+  if (currentAccount.userName === accounts[index].userName &&
+    currentAccount.pin === accounts[index].pin) {
+    containerApp.style.opacity = '0';
+  }
+
+  inputCloseUsername.value = inputClosePin.value = '';
+  inputCloseUsername.blur();
+  inputClosePin.blur();
+  labelWelcome.textContent = 'Log in to get started';
+
+  accounts.splice(index);
+};
 
 // Initialize
 const init = () => {
   createUserNames(accounts);
   btnLogin.addEventListener('click', login);
   btnTransfer.addEventListener('click', transfer);
-  // btnClose.addEventListener('click', close);
+  btnClose.addEventListener('click', close);
 };
 
 init();

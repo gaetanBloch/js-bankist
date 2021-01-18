@@ -1,6 +1,8 @@
 'use strict';
 
 class Account {
+  userName;
+
   constructor(owner, movements, interestRate, pin) {
     this.owner = owner;
     this.movements = movements;
@@ -40,6 +42,8 @@ const account4 = new Account(
 const accounts = [account1, account2, account3, account4];
 
 // Elements
+const app = document.querySelector('.app');
+
 const labelWelcome = document.querySelector('.welcome');
 const labelDate = document.querySelector('.date');
 const labelBalance = document.querySelector('.balance__value');
@@ -84,9 +88,38 @@ const displayMovements = (movements) => {
     containerMovements.insertAdjacentHTML('afterbegin', html);
   });
 };
-displayMovements(account1.movements);
 
-// User names
+// Balance
+const displayBalance = movements =>
+  labelBalance.textContent = movements.reduce((acc, cur) => acc + cur) + ' €';
+
+// Statistics
+const displaySum = (movements, label, filter) =>
+  label.textContent = Math.abs(movements
+    .filter(mov => filter(mov))
+    .reduce((acc, mov) => acc + mov)) + ' €';
+
+//// IN
+const displayIn = movements =>
+  displaySum(movements, labelSumIn, mov => mov > 0);
+
+//// OUT
+const displayOut = movements =>
+  displaySum(movements, labelSumOut, mov => mov < 0);
+
+//// Interests
+const displayInterests = account => {
+  labelSumInterest.textContent = account
+    .movements
+    .filter(mov => mov > 0)
+    .map(mov => mov * account.interestRate / 100)
+    .filter(int => int >= 1)
+    .reduce((acc, int) => acc + int) + ' €';
+};
+
+// Login
+
+//// User names
 const createUserName = user =>
   user
     .trim()
@@ -98,36 +131,44 @@ const createUserName = user =>
 const createUserNames = accounts =>
   accounts.forEach(account => account.userName = createUserName(account.owner));
 
-createUserNames(accounts);
+//// Credentials
 
-// Balance
-const displayBalance = movements =>
-  labelBalance.textContent = movements.reduce((acc, cur) => acc + cur) + ' €';
-displayBalance(account1.movements);
-
-// Statistics
-const displaySum = (movements, label, filter) =>
-  label.textContent = Math.abs(movements
-    .filter(mov => filter(mov))
-    .reduce((acc, mov) => acc + mov)) + ' €';
-
-//// IN
-const displayIn = movements =>
-  displaySum(movements, labelSumIn, mov => mov > 0);
-displayIn(account1.movements);
-
-//// OUT
-const displayOut = movements =>
-  displaySum(movements, labelSumOut, mov => mov < 0);
-displayOut(account1.movements);
-
-//// Interests
-const displayInterests = account => {
-  labelSumInterest.textContent = account
-    .movements
-    .filter(mov => mov > 0)
-    .map(mov => mov * account.interestRate / 100)
-    .filter(int => int >= 1)
-    .reduce((acc, int) => acc + int) + ' €';
+const getCredentials = () => {
+  const account = accounts.find(account => {
+      console.log(account.userName, inputLoginUsername.value);
+      return account.userName === inputLoginUsername.value;
+    },
+  );
+  console.log(account);
+  return account && account.pin === Number(inputLoginPin.value)
+    ? account
+    : undefined;
 };
-displayInterests(account1);
+
+const login = (event) => {
+  // Prevent the page to be reloaded on form submit
+  event.preventDefault();
+
+  const account = getCredentials();
+  if (!account) {
+    alert('Wrong credentials!');
+    return;
+  }
+  app.style.opacity = '1';
+  const owner = account.owner;
+  labelWelcome.textContent = 'Good Day, ' + owner.slice(0, owner.indexOf(' '));
+
+  displayMovements(account.movements);
+  displayBalance(account.movements);
+  displayIn(account.movements);
+  displayOut(account.movements);
+  displayInterests(account);
+};
+
+// Initialize
+const init = () => {
+  createUserNames(accounts);
+  btnLogin.addEventListener('click', login);
+};
+
+init();

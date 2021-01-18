@@ -69,6 +69,7 @@ const inputClosePin = document.querySelector('.form__input--pin');
 // Functions
 ////////////////////
 
+// Movements
 const displayMovements = (movements) => {
   // Clear the movements
   containerMovements.innerHTML = '';
@@ -83,9 +84,9 @@ const displayMovements = (movements) => {
     containerMovements.insertAdjacentHTML('afterbegin', html);
   });
 };
-
 displayMovements(account1.movements);
 
+// User names
 const createUserName = user =>
   user
     .trim()
@@ -99,7 +100,34 @@ const createUserNames = accounts =>
 
 createUserNames(accounts);
 
+// Balance
 const displayBalance = movements =>
   labelBalance.textContent = movements.reduce((acc, cur) => acc + cur) + ' €';
-
 displayBalance(account1.movements);
+
+// Statistics
+const displaySum = (movements, label, filter) =>
+  label.textContent = Math.abs(movements
+    .filter(mov => filter(mov))
+    .reduce((acc, mov) => acc + mov)) + ' €';
+
+//// IN
+const displayIn = movements =>
+  displaySum(movements, labelSumIn, mov => mov > 0);
+displayIn(account1.movements);
+
+//// OUT
+const displayOut = movements =>
+  displaySum(movements, labelSumOut, mov => mov < 0);
+displayOut(account1.movements);
+
+//// Interests
+const displayInterests = account => {
+  labelSumInterest.textContent = account
+    .movements
+    .filter(mov => mov > 0)
+    .map(mov => mov * account.interestRate / 100)
+    .filter(int => int >= 1)
+    .reduce((acc, int) => acc + int) + ' €';
+};
+displayInterests(account1);

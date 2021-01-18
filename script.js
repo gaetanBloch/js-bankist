@@ -93,19 +93,26 @@ const displayMovements = (movements) => {
 const displayBalance = movements =>
   labelBalance.textContent = movements.reduce((acc, cur) => acc + cur) + ' €';
 
-// Statistics
+// Summary
+
+const displaySummary = account => {
+  displayIn(account);
+  displayOut(account);
+  displayInterests(account);
+};
+
 const displaySum = (movements, label, filter) =>
   label.textContent = Math.abs(movements
     .filter(mov => filter(mov))
     .reduce((acc, mov) => acc + mov)) + ' €';
 
 //// IN
-const displayIn = movements =>
-  displaySum(movements, labelSumIn, mov => mov > 0);
+const displayIn = account =>
+  displaySum(account.movements, labelSumIn, mov => mov > 0);
 
 //// OUT
-const displayOut = movements =>
-  displaySum(movements, labelSumOut, mov => mov < 0);
+const displayOut = account =>
+  displaySum(account.movements, labelSumOut, mov => mov < 0);
 
 //// Interests
 const displayInterests = account => {
@@ -154,15 +161,17 @@ const login = (event) => {
     alert('Wrong credentials!');
     return;
   }
+
+  console.log(account);
+
   app.style.opacity = '1';
-  const owner = account.owner;
-  labelWelcome.textContent = 'Good Day, ' + owner.slice(0, owner.indexOf(' '));
+  labelWelcome.textContent = 'Good Day, ' + account.owner.split(' ')[0];
+  inputLoginUsername.value = inputLoginPin.value = '';
+  inputLoginPin.blur();
 
   displayMovements(account.movements);
   displayBalance(account.movements);
-  displayIn(account.movements);
-  displayOut(account.movements);
-  displayInterests(account);
+  displaySummary(account);
 };
 
 // Initialize

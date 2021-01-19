@@ -129,6 +129,12 @@ const displayInterests = account => {
     .reduce((acc, int) => acc + int) + ' €';
 };
 
+const displayUI = account => {
+  displayMovements(account.movements);
+  displayBalance(account);
+  displaySummary(account);
+};
+
 // Login
 
 //// User names
@@ -168,9 +174,7 @@ const login = event => {
   inputLoginUsername.blur();
   inputLoginPin.blur();
 
-  displayMovements(account.movements);
-  displayBalance(account);
-  displaySummary(account);
+  displayUI(account);
 };
 
 // Transfers
@@ -210,13 +214,32 @@ const transfer = event => {
 
   currentAccount.movements.push(-amount);
   transferAccount.movements.push(amount);
-  displayMovements(currentAccount.movements);
-  displayBalance(currentAccount);
-  displayOut(currentAccount);
+  displayUI(currentAccount);
 
   inputTransferTo.value = inputTransferAmount.value = '';
   inputTransferTo.blur();
   inputTransferAmount.blur();
+};
+
+// Loan money
+
+const loan = event => {
+  // Prevent the page to be reloaded on form submit
+  event.preventDefault();
+
+  const amount = Number(inputLoanAmount.value);
+
+  if (currentAccount.movements.some(mov => mov >= amount * 0.1)) {
+    currentAccount.movements.push(amount);
+    displayUI(currentAccount);
+
+    inputLoanAmount.value = '';
+    inputLoanAmount.blur();
+
+    return;
+  }
+
+  alert(`One of your deposit should at least ${amount * 0.1} €`);
 };
 
 // Close Account
@@ -252,6 +275,7 @@ const init = () => {
   createUserNames(accounts);
   btnLogin.addEventListener('click', login);
   btnTransfer.addEventListener('click', transfer);
+  btnLoan.addEventListener('click', loan);
   btnClose.addEventListener('click', close);
 };
 

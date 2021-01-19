@@ -43,6 +43,7 @@ const account4 = new Account(
 const accounts = [account1, account2, account3, account4];
 
 let currentAccount;
+let sorted = false;
 
 // Elements
 const app = document.querySelector('.app');
@@ -270,6 +271,19 @@ const close = event => {
   accounts.splice(index);
 };
 
+// Sorting movements
+
+const sort = () => {
+  if (sorted) {
+    displayMovements(currentAccount.movements);
+  } else {
+    const movCp = [...currentAccount.movements];
+    movCp.sort((a, b) => a - b);
+    displayMovements(movCp);
+  }
+  sorted = !sorted;
+};
+
 // Initialize
 const init = () => {
   createUserNames(accounts);
@@ -277,6 +291,7 @@ const init = () => {
   btnTransfer.addEventListener('click', transfer);
   btnLoan.addEventListener('click', loan);
   btnClose.addEventListener('click', close);
+  btnSort.addEventListener('click', sort);
 };
 
 init();

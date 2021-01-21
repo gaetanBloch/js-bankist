@@ -107,7 +107,7 @@ const displayMovements = (movements) => {
     const html = `
     <div class="movements__row">
       <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
-      <div class="movements__value">${movement} €</div>
+      <div class="movements__value">${movement.toFixed(2)} €</div>
     </div>
     `;
     containerMovements.insertAdjacentHTML('afterbegin', html);
@@ -117,7 +117,7 @@ const displayMovements = (movements) => {
 // Balance
 const displayBalance = account => {
   account.balance = account.movements.reduce((acc, cur) => acc + cur);
-  labelBalance.textContent = account.balance + ' €';
+  labelBalance.textContent = account.balance.toFixed(2) + ' €';
 };
 
 // Summary
@@ -131,7 +131,8 @@ const displaySummary = account => {
 const displaySum = (movements, label, filter) =>
   label.textContent = Math.abs(movements
     .filter(mov => filter(mov))
-    .reduce((acc, mov) => acc + mov)) + ' €';
+    .reduce((acc, mov) => acc + mov)
+    .toFixed(2) + ' €');
 
 //// IN
 const displayIn = account =>
@@ -148,7 +149,8 @@ const displayInterests = account => {
     .filter(mov => mov > 0)
     .map(mov => mov * account.interestRate / 100)
     .filter(int => int >= 1)
-    .reduce((acc, int) => acc + int) + ' €';
+    .reduce((acc, int) => acc + int)
+    .toFixed(2) + ' €';
 };
 
 const displayUI = account => {
@@ -249,7 +251,7 @@ const loan = event => {
   // Prevent the page to be reloaded on form submit
   event.preventDefault();
 
-  const amount = +inputLoanAmount.value;
+  const amount = Math.floor(inputLoanAmount.value);
 
   if (currentAccount.movements.some(mov => mov >= amount * 0.1)) {
     currentAccount.movements.push(amount);

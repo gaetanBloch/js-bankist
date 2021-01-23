@@ -65,6 +65,7 @@ const accounts = [account1, account2];
 
 let currentAccount;
 let sorted = false;
+let loginInterval;
 
 // Elements
 const app = document.querySelector('.app');
@@ -216,9 +217,36 @@ const getCredentials = () =>
     account.userName === inputLoginUsername.value &&
     account.pin === +inputLoginPin.value);
 
+const startLogoutTimer = () => {
+  const logoutTimer = new Date(0, 0, 0, 0, 9, 59);
+  loginInterval = setInterval(() => {
+    const min = logoutTimer.getMinutes();
+    const sec = logoutTimer.getSeconds();
+    logoutTimer.setMinutes(sec <= 0 ? min - 1 : min);
+    logoutTimer.setSeconds(sec <= 0 ? 59 : sec - 1);
+    labelTimer.textContent = Intl.DateTimeFormat(
+      'fr-FR',
+      {
+        minute: 'numeric',
+        second: 'numeric',
+      },
+    ).format(logoutTimer);
+  }, 1000);
+};
+
+const logout = () => {
+  containerApp.style.opacity = '0';
+  labelWelcome.textContent = 'Log in to get started';
+  clearInterval(loginInterval);
+};
+
 const login = event => {
   // Prevent the page to be reloaded on form submit
   event.preventDefault();
+
+  loginInterval && clearInterval(loginInterval);
+  startLogoutTimer();
+  setTimeout(logout, 1000 * 60 * 10);
 
   const account = getCredentials();
   if (!account) {
@@ -226,7 +254,6 @@ const login = event => {
     return;
   }
 
-  console.log(account);
   currentAccount = account;
 
   app.style.opacity = '1';

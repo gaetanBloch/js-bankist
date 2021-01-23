@@ -33,10 +33,10 @@ const account1 = new Account(
     '2019-12-23T07:42:02.383Z',
     '2020-01-28T09:15:04.904Z',
     '2020-04-01T10:17:24.185Z',
-    '2020-05-08T14:11:59.604Z',
-    '2020-05-27T17:01:17.194Z',
-    '2020-07-11T23:36:17.929Z',
-    '2020-07-12T10:51:36.790Z',
+    '2021-01-18T16:33:06.386Z',
+    '2021-01-20T14:43:26.374Z',
+    '2021-01-21T10:49:59.371Z',
+    '2021-01-22T12:01:20.894Z',
   ],
   'EUR',
   'pt-PT', // de-DE
@@ -100,6 +100,7 @@ const inputClosePin = document.querySelector('.form__input--pin');
 
 // Movements
 
+//// Dates
 const formatDate = date => {
   const d = new Date(date);
   return [
@@ -117,6 +118,16 @@ const formatTime = date => {
   ].join(':');
 };
 
+const formatMovDate = (date) => {
+  const days = Math.round(Math.abs(
+    (new Date() - new Date(date)) / (1000 * 60 * 60 * 24)));
+  console.log(days);
+  if (days === 0) return 'Today';
+  if (days === 1) return 'Yesterday';
+  if (days <= 7) return `${days} days ago`;
+  return formatDate(date);
+};
+
 const displayMovements = account => {
   // Clear the movements
   containerMovements.innerHTML = '';
@@ -125,7 +136,7 @@ const displayMovements = account => {
     const html = `
     <div class="movements__row">
       <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
-      <div class="movements__date">${formatDate(account.movementDates[i])}</div>
+      <div class="movements__date">${formatMovDate(account.movementDates[i])}</div>
       <div class="movements__value">${mov.toFixed(2)} €</div>
     </div>
     `;

@@ -39,7 +39,7 @@ const account1 = new Account(
     '2021-01-22T12:01:20.894Z',
   ],
   'EUR',
-  'pt-PT', // de-DE
+  'fr-FR', // de-DE
 );
 
 const account2 = new Account(
@@ -101,32 +101,32 @@ const inputClosePin = document.querySelector('.form__input--pin');
 // Movements
 
 //// Dates
-const formatDate = date => {
-  const d = new Date(date);
-  return [
-    (d.getDate() + '').padStart(2, '0'),
-    (d.getMonth() + 1 + '').padStart(2, '0'),
-    d.getFullYear(),
-  ].join('/');
+const formatDate = (date, locale, time = undefined) => {
+  const options = {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: time && '2-digit',
+    minute: time && 'numeric',
+  };
+  return Intl.DateTimeFormat(locale, options).format(new Date(date));
 };
 
-const formatTime = date => {
-  const d = new Date(date);
-  return [
-    (d.getHours() + '').padStart(2, '0'),
-    (d.getMinutes() + '').padStart(2, '0'),
-  ].join(':');
-};
-
-const formatMovDate = (date) => {
+const formatMovDate = (date, locale) => {
   const days = Math.round(Math.abs(
     (new Date() - new Date(date)) / (1000 * 60 * 60 * 24)));
-  console.log(days);
   if (days === 0) return 'Today';
   if (days === 1) return 'Yesterday';
   if (days <= 7) return `${days} days ago`;
-  return formatDate(date);
+  return formatDate(date, locale);
 };
+
+//// Numbers
+const formatNumber = (number, account) =>
+  Intl.NumberFormat(
+    account.locale,
+    {style: 'currency', currency: account.currency},
+  ).format(number);
 
 const displayMovements = account => {
   // Clear the movements
@@ -136,8 +136,11 @@ const displayMovements = account => {
     const html = `
     <div class="movements__row">
       <div class="movements__type movements__type--${type}">${i + 1} ${type}</div>
-      <div class="movements__date">${formatMovDate(account.movementDates[i])}</div>
-      <div class="movements__value">${mov.toFixed(2)} €</div>
+      <div class="movements__date">${formatMovDate(
+      account.movementDates[i],
+      account.locale,
+    )}</div>
+      <div class="movements__value">${formatNumber(mov, account)}</div>
     </div>
     `;
     containerMovements.insertAdjacentHTML('afterbegin', html);
@@ -147,7 +150,7 @@ const displayMovements = account => {
 // Balance
 const displayBalance = account => {
   account.balance = account.movements.reduce((acc, cur) => acc + cur);
-  labelBalance.textContent = account.balance.toFixed(2) + ' €';
+  labelBalance.textContent = formatNumber(account.balance, account);
 };
 
 // Summary
@@ -158,30 +161,34 @@ const displaySummary = account => {
   displayInterests(account);
 };
 
-const displaySum = (movements, label, filter) =>
-  label.textContent = Math.abs(movements
-    .filter(mov => filter(mov))
-    .reduce((acc, mov) => acc + mov)
-    .toFixed(2)) + ' €';
+const displaySum = (account, label, filter) =>
+  label.textContent = formatNumber(
+    Math.abs(
+      account.movements
+             .filter(mov => filter(mov))
+             .reduce((acc, mov) => acc + mov)),
+    account,
+  );
 
 //// IN
 const displayIn = account =>
-  displaySum(account.movements, labelSumIn, mov => mov > 0);
+  displaySum(account, labelSumIn, mov => mov > 0);
 
 //// OUT
 const displayOut = account =>
-  displaySum(account.movements, labelSumOut, mov => mov < 0);
+  displaySum(account, labelSumOut, mov => mov < 0);
 
 //// Interests
-const displayInterests = account => {
-  labelSumInterest.textContent = account
-    .movements
-    .filter(mov => mov > 0)
-    .map(mov => mov * account.interestRate / 100)
-    .filter(int => int >= 1)
-    .reduce((acc, int) => acc + int)
-    .toFixed(2) + ' €';
-};
+const displayInterests = account =>
+  labelSumInterest.textContent = formatNumber(
+    account
+      .movements
+      .filter(mov => mov > 0)
+      .map(mov => mov * account.interestRate / 100)
+      .filter(int => int >= 1)
+      .reduce((acc, int) => acc + int),
+    account,
+  );
 
 const displayUI = account => {
   displayMovements(account);
@@ -223,9 +230,10 @@ const login = event => {
   currentAccount = account;
 
   app.style.opacity = '1';
-  labelWelcome.textContent = 'Good Day, ' + account.owner.split(' ')[0];
+  labelWelcome.textContent =
+    'Welcome back, ' + account.owner.split(' ')[0] + '!';
   const now = Date.now();
-  labelDate.textContent = formatDate(now) + ', ' + formatTime(now);
+  labelDate.textContent = formatDate(now, account.locale, true);
   inputLoginUsername.value = inputLoginPin.value = '';
   inputLoginUsername.blur();
   inputLoginPin.blur();
@@ -336,6 +344,7 @@ const sort = () => {
     displayMovements(currentAccount);
   } else {
     const accCp = {
+      ...currentAccount,
       movements: [...currentAccount.movements],
       movementDates: [...currentAccount.movementDates],
     };
